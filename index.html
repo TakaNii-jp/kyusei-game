@@ -107,14 +107,22 @@
       background:var(--soft);color:var(--accent);font-weight:800;
     }
     .result-title{font-size:clamp(1.55rem,5vw,2.1rem);margin:14px 0 4px}
-    .theme-line{color:var(--sub);font-size:.9rem;margin:0 0 14px}
-    .summary-strip{
-      display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px auto 10px;max-width:560px
+    .theme-line{color:var(--sub);font-size:.9rem;margin:0 0 10px}
+    .theme-tag{
+      display:inline-flex;align-items:center;gap:7px;margin:2px auto 4px;padding:5px 10px;
+      border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--sub);font-size:.76rem
     }
-    .summary-cell{padding:13px 14px;border:1px solid var(--line);border-radius:14px;background:#fff;text-align:left}
-    .summary-cell small{display:block;color:var(--sub);font-size:.76rem;margin-bottom:3px}
-    .summary-cell strong{font-family:serif;font-size:1.08rem;color:var(--accent)}
-    .why-line{max-width:600px;margin:10px auto 0;padding:10px 12px;border-radius:12px;background:#f7f2ea;color:var(--sub);font-size:.84rem;text-align:left}
+    .theme-tag strong{color:var(--accent);font-family:serif;font-size:.9rem}
+    .why-details{
+      position:relative;z-index:1;margin-top:14px;border:1px solid var(--line);border-radius:14px;background:#f8f4ee;overflow:hidden
+    }
+    .why-details summary{
+      cursor:pointer;list-style:none;padding:12px 15px;color:var(--accent);font-size:.86rem;font-weight:800;user-select:none
+    }
+    .why-details summary::-webkit-details-marker{display:none}
+    .why-details summary::after{content:"＋";float:right;color:var(--sub);font-weight:700}
+    .why-details[open] summary::after{content:"−"}
+    .why-line{margin:0;padding:0 15px 14px;color:var(--sub);font-size:.84rem;text-align:left}
     .health-note{max-width:600px;margin:8px auto 0;padding:9px 11px;border-left:3px solid #9d7568;border-radius:8px;background:#fbf5f1;color:#765b52;font-size:.8rem;text-align:left}
     .diagnosis-box,.star-box,.action-box{
       position:relative;z-index:1;margin-top:16px;padding:19px 20px;border-radius:16px;
@@ -126,9 +134,10 @@
     .diagnosis-box h3,.star-box h3{color:var(--accent)}
     .action-box h3{color:var(--good)}
     .diagnosis-box p,.star-box p,.action-box p{margin:0}
-    .keyword{
-      display:inline-block;margin-top:9px;padding:3px 9px;border-radius:999px;background:#fff;color:var(--accent);
-      font-size:.78rem;font-weight:800;border:1px solid #dfd1c1;
+    .star-keyword-line{margin:0 0 8px !important;color:var(--sub);font-size:.8rem}
+    .star-keyword-line strong{
+      display:inline-block;margin-left:4px;padding:3px 9px;border-radius:999px;background:#fff;color:var(--accent);
+      font-size:.8rem;font-weight:800;border:1px solid #dfd1c1;
     }
     .result-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0}
     .result-item{position:relative;z-index:1;padding:16px;border:1px solid var(--line);border-radius:16px;background:#fff}
@@ -224,7 +233,7 @@
     .revisit-note strong{color:var(--koyomi-deep);white-space:nowrap}
 
     @media(max-width:620px){
-      .choices,.result-grid,.summary-strip{grid-template-columns:1fr}
+      .choices,.result-grid{grid-template-columns:1fr}
       .result-item.full{grid-column:auto}
       .nav{flex-direction:column}
       .secondary{order:2}
@@ -242,6 +251,24 @@
       .koyomi-quote::before{left:-7px;top:24px;width:12px;height:12px}
       .revisit-note{font-size:.76rem}
     }
+    /* --- 結果と悩みの両方に合致するときだけ表示する無料noteカード --- */
+    .note-card{
+      position:relative;z-index:1;margin:20px 0 6px;padding:20px;
+      border:1px solid #c9d6ce;border-radius:18px;background:#f3f8f3;
+      box-shadow:0 7px 20px rgba(63,92,70,.07);
+    }
+    .note-card-heading{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin:0 0 10px;color:#365d43;font-size:1rem}
+    .note-card-mark{display:inline-flex;padding:3px 9px;border-radius:999px;background:#e0eddf;color:#365d43;font-size:.7rem;font-weight:800}
+    .note-card-title{margin:0 0 8px;font-family:serif;font-size:1.12rem;line-height:1.5}
+    .note-card-description{margin:0 0 16px;color:var(--sub);font-size:.9rem;line-height:1.75}
+    .note-card-link{
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;
+      padding:11px 17px;border-radius:12px;background:#426b50;color:#fff;
+      font-size:.93rem;font-weight:800;text-decoration:none;
+    }
+    .note-card-link:hover{background:#31543d}
+    .note-card-link:focus-visible{outline:3px solid rgba(66,107,80,.35);outline-offset:3px}
+    @media(max-width:620px){.note-card{padding:17px}.note-card-link{display:flex;width:100%}}
   </style>
 </head>
 <body>
@@ -264,7 +291,7 @@
       <h2>生年月日を教えてください</h2>
       <label for="birth">生年月日</label>
       <input id="birth" type="date" min="1900-01-01">
-      <p class="fortune-note">本命星は立春を2月4日とする簡易ルールで判定します。厳密な鑑定ではなく、ゲームを楽しむための目安です。</p>
+      <p class="fortune-note">本命星は年ごとの立春日を境に判定します。立春当日生まれは出生時刻によって変わる場合があるため、本ゲームでは立春日から新しい年として扱います。</p>
       <div class="nav"><button id="step1Next" class="primary" type="button">次へ</button></div>
       <p id="birthError" class="error hidden">生年月日を入力してください。</p>
     </section>
@@ -314,17 +341,7 @@
         <div id="starBadge" class="star-badge"></div>
         <h2 id="resultTitle" class="result-title">今日の結果</h2>
         <p id="themeLine" class="theme-line"></p>
-        <div class="summary-strip">
-          <div class="summary-cell">
-            <small>今日の大テーマ</small>
-            <strong id="themeText"></strong>
-          </div>
-          <div class="summary-cell">
-            <small>あなたの星の行動キーワード</small>
-            <strong id="headerKeyword"></strong>
-          </div>
-        </div>
-        <p id="whyText" class="why-line"></p>
+        <div class="theme-tag"><span>今日の大テーマ</span><strong id="themeText"></strong></div>
         <p id="healthNote" class="health-note hidden">体調不良や強い不安がある場合は、ゲーム結果よりも休息や医療・専門家への相談を優先してください。</p>
       </div>
 
@@ -333,15 +350,21 @@
         <p id="diagnosisText"></p>
       </div>
 
-      <div class="star-box">
-        <h3 id="starAdviceTitle">あなたの星から見る進め方</h3>
-        <p id="starAdviceText"></p>
-      </div>
-
       <div class="action-box">
         <h3>今日の開運アクション</h3>
         <p id="actionText"></p>
       </div>
+
+      <div class="star-box">
+        <h3 id="starAdviceTitle">あなたの星から見る進め方</h3>
+        <p class="star-keyword-line">今日のキーワード：<strong id="headerKeyword"></strong></p>
+        <p id="starAdviceText"></p>
+      </div>
+
+      <details class="why-details">
+        <summary>なぜこの結果？</summary>
+        <p id="whyText" class="why-line"></p>
+      </details>
 
       <div class="result-grid">
         <div class="result-item"><h3>今日のカラー</h3><p id="colorText"></p></div>
@@ -364,6 +387,13 @@
         </div>
       </aside>
 
+      <aside id="noteCard" class="note-card hidden" aria-label="診断結果に関連する無料note">
+        <h3 class="note-card-heading">もう少し詳しく知りたい方へ <span class="note-card-mark">無料note</span></h3>
+        <p id="noteCardTitle" class="note-card-title"></p>
+        <p id="noteCardDescription" class="note-card-description"></p>
+        <a id="noteCardLink" class="note-card-link" target="_blank" rel="noopener noreferrer">無料noteを読む ↗</a>
+      </aside>
+
       <div class="revisit-note"><strong>また明日</strong><span>今日のおすすめ要素は、本命星と日付をもとに毎日変わります。気になっていることや今の状態が変わったときにも、気軽に試してみてください。</span></div>
       <div class="nav">
         <button id="restartButton" class="secondary" type="button">別のテーマで見る</button>
@@ -373,7 +403,7 @@
       <p class="fortune-note">この診断は九星気学と五行のイメージをモチーフにしたエンターテインメントです。カラー・アイテム・フード・時間は、今日を心地よく過ごすための提案であり、伝統的な吉凶を断定するものではありません。重要な判断は現実の状況を確認したうえで行ってください。</p>
     </section>
 
-    <footer>Public UI ver. 5｜7択入力・18結果・九星別個別化ロジック</footer>
+    <footer>Public UI ver. 5.4｜立春判定・結果画面整理・無料note紹介カード</footer>
   </main>
 
 <script>
@@ -551,6 +581,79 @@
     }
   };
 
+  // 公開済みの無料記事。URLとタイトルはnote上の実ページで確認済み。
+  const noteArticles={
+    workFamily:{
+      title:"仕事も家族も大事にしたい人の小さな整え方",
+      url:"https://note.com/oitaka_design/n/n7641a27826df"
+    },
+    rest:{
+      title:"頑張りすぎてしまう日の整え方",
+      url:"https://note.com/oitaka_design/n/n3dc549127aaa"
+    },
+    money:{
+      title:"将来のお金が不安な日の整え方",
+      url:"https://note.com/oitaka_design/n/n5b7e8beb33e9"
+    }
+  };
+
+  // 実際にresultMapで発生し、かつ本文の内容と無理なく一致する組み合わせのみ。
+  // key = 結果番号 | 選んだ悩み。未登録の場合は紹介カードを表示しない。
+  const noteRecommendations={
+    "2|家族":{
+      article:"workFamily",
+      description:"家族のことも、自分の暮らしも大切にしたい方へ。全部を一度に変えず、毎日を少し整えるヒントを紹介します。"
+    },
+    "2|お金":{
+      article:"money",
+      description:"お金のことが気になっている方へ。焦って大きな決断をする前に、今日できる小さな見直しから考えてみませんか。"
+    },
+    "7|仕事・副業":{
+      article:"rest",
+      description:"少し疲れていると感じたら、頑張ることを増やさない日があってもいい。毎日の負担を少し軽くするヒントを紹介します。"
+    },
+    "7|心と体":{
+      article:"rest",
+      description:"少し疲れていると感じたら、頑張ることを増やさない日があってもいい。毎日の負担を少し軽くするヒントを紹介します。"
+    },
+    "7|特に決まっていない":{
+      article:"rest",
+      description:"少し疲れていると感じたら、頑張ることを増やさない日があってもいい。毎日の負担を少し軽くするヒントを紹介します。"
+    },
+    "10|仕事・副業":{
+      article:"workFamily",
+      description:"仕事でやることが多すぎる方へ。すべてを一度に片づけようとせず、何を優先するか整理するヒントを紹介します。"
+    },
+    "10|家族":{
+      article:"workFamily",
+      description:"家族のこと、自分のこと、やることがいっぱい。忙しい毎日で、何を優先するか考えるヒントを紹介します。"
+    },
+    "14|仕事・副業":{
+      article:"workFamily",
+      description:"『自分がやらなければ』と抱えていませんか。誰かに頼ることや、やることを減らす考え方を紹介します。"
+    }
+  };
+
+  function updateNoteCard(resultId,worry){
+    const card=document.getElementById("noteCard");
+    const title=document.getElementById("noteCardTitle");
+    const description=document.getElementById("noteCardDescription");
+    const link=document.getElementById("noteCardLink");
+    // 別のテーマで再診断したときに前回の紹介が残らないよう、まず必ずリセットする。
+    card.classList.add("hidden");
+    title.textContent="";
+    description.textContent="";
+    link.removeAttribute("href");
+    const recommendation=noteRecommendations[`${resultId}|${worry}`];
+    if(!recommendation) return;
+    const article=noteArticles[recommendation.article];
+    if(!article || !article.url) return;
+    title.textContent=article.title;
+    description.textContent=recommendation.description;
+    link.href=article.url;
+    card.classList.remove("hidden");
+  }
+
   function showOnly(id){
     ["step1","step2","step3","result"].forEach(x=>document.getElementById(x).classList.add("hidden"));
     document.getElementById(id).classList.remove("hidden");
@@ -591,13 +694,30 @@
     return `${y}-${m}-${d}`;
   }
 
+  // 本命星の年替わりは、暦上の1月1日ではなく立春を境にする。
+  // 日本標準時で立春が2月3日・5日になる年だけを例外として保持し、
+  // それ以外の年は2月4日として判定する（1900〜2100年対応）。
+  const risshunFeb3Years=new Set([
+    2021,2025,2029,2033,2037,2041,2045,2049,2053,2057,2058,2061,2062,2065,2066,2069,2070,
+    2073,2074,2077,2078,2081,2082,2085,2086,2089,2090,2091,2093,2094,2095,2097,2098,2099
+  ]);
+  const risshunFeb5Years=new Set([
+    1902,1903,1904,1906,1907,1908,1910,1911,1912,1914,1915,1916,1919,1920,1923,1924,1927,1928,
+    1931,1932,1935,1936,1939,1940,1943,1944,1947,1948,1951,1952,1956,1960,1964,1968,1972,1976,1980,1984
+  ]);
+
+  function getRisshunDay(year){
+    if(risshunFeb3Years.has(year)) return 3;
+    if(risshunFeb5Years.has(year)) return 5;
+    return 4;
+  }
+
   function getStar(dateStr){
-    const d=new Date(dateStr+"T12:00:00");
-    let y=d.getFullYear();
-    const m=d.getMonth()+1;
-    const day=d.getDate();
-    if(m<2 || (m===2 && day<4)) y-=1;
-    return ((2024-y+2)%9+9)%9+1;
+    const [year,month,day]=dateStr.split("-").map(Number);
+    let kyuseiYear=year;
+    const risshunDay=getRisshunDay(year);
+    if(month<2 || (month===2 && day<risshunDay)) kyuseiYear-=1;
+    return ((2024-kyuseiYear+2)%9+9)%9+1;
   }
 
   function diagnose(){
@@ -623,7 +743,16 @@
     document.getElementById("resultTitle").textContent=result.title;
     const worryDisplay=worry==="特に決まっていない" ? "なんとなくモヤモヤ" : worry;
     const moodDisplay=mood==="うまく言葉にできない" ? "うまく言葉にできない・なんとなくモヤモヤする" : mood;
-    document.getElementById("themeLine").textContent=`${worryDisplay} × ${moodDisplay} から見た、今日まず意識したいこと`;
+    const moodShort={
+      "動きたい":"何か始めたい・動きたい",
+      "迷っている":"迷っていて決められない",
+      "少し疲れている":"少し疲れている・休みたい",
+      "誰かと話したい":"誰かと話したい・つながりたい",
+      "何かを変えたい":"今の状況を何か変えたい",
+      "静かに整えたい":"静かに気持ちや暮らしを整えたい",
+      "うまく言葉にできない":"うまく言葉にできない"
+    }[mood] || mood;
+    document.getElementById("themeLine").textContent=`${worryDisplay}｜${moodShort}`;
     document.getElementById("themeText").textContent=result.theme;
     document.getElementById("headerKeyword").textContent=star.keyword;
     let why;
@@ -650,6 +779,7 @@
     document.getElementById("avoidText").textContent=pick(star.avoids,dailySeed,9);
     document.getElementById("messageText").textContent=pick(star.messages,dailySeed,11);
     document.getElementById("copyNote").textContent="";
+    updateNoteCard(resultId,worry);
     showOnly("result");
   }
 
