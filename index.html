@@ -293,7 +293,7 @@
       <input id="birth" type="date" min="1900-01-01">
       <p class="fortune-note">本命星は年ごとの立春日を境に判定します。立春当日生まれは出生時刻によって変わる場合があるため、本ゲームでは立春日から新しい年として扱います。</p>
       <div class="nav"><button id="step1Next" class="primary" type="button">次へ</button></div>
-      <p id="birthError" class="error hidden">生年月日を入力してください。</p>
+      <p id="birthError" class="error hidden" role="alert" aria-live="polite">生年月日を入力してください。</p>
     </section>
 
     <section id="step2" class="card hidden">
@@ -394,7 +394,7 @@
         <a id="noteCardLink" class="note-card-link" target="_blank" rel="noopener noreferrer">無料noteを読む ↗</a>
       </aside>
 
-      <div class="revisit-note"><strong>また明日</strong><span>今日のおすすめ要素は、本命星と日付をもとに毎日変わります。気になっていることや今の状態が変わったときにも、気軽に試してみてください。</span></div>
+      <div class="revisit-note"><strong>また明日</strong><span>今日のおすすめ要素は、本命星と日付をもとに選び直します。同じ内容が続く日もあります。気になっていることや今の状態が変わったときにも、気軽に試してみてください。</span></div>
       <div class="nav">
         <button id="restartButton" class="secondary" type="button">別のテーマで見る</button>
         <button id="copyButton" class="primary" type="button">結果をコピー</button>
@@ -403,7 +403,7 @@
       <p class="fortune-note">この診断は九星気学と五行のイメージをモチーフにしたエンターテインメントです。カラー・アイテム・フード・時間は、今日を心地よく過ごすための提案であり、伝統的な吉凶を断定するものではありません。重要な判断は現実の状況を確認したうえで行ってください。</p>
     </section>
 
-    <footer>Public UI ver. 5.4｜立春判定・結果画面整理・無料note紹介カード</footer>
+    <footer>Public UI ver. 5.5｜生年月日チェック・診断4組み合わせ調整</footer>
   </main>
 
 <script>
@@ -562,22 +562,47 @@
       "動きたい":6,"迷っている":10,"少し疲れている":7,"誰かと話したい":17,"何かを変えたい":14,"静かに整えたい":3,"うまく言葉にできない":10
     },
     "お金":{
-      "動きたい":6,"迷っている":12,"少し疲れている":8,"誰かと話したい":17,"何かを変えたい":13,"静かに整えたい":2,"うまく言葉にできない":2
+      "動きたい":6,"迷っている":12,"少し疲れている":8,"誰かと話したい":18,"何かを変えたい":13,"静かに整えたい":2,"うまく言葉にできない":2
     },
     "恋愛・人間関係":{
       "動きたい":5,"迷っている":11,"少し疲れている":9,"誰かと話したい":16,"何かを変えたい":14,"静かに整えたい":1,"うまく言葉にできない":18
     },
     "家族":{
-      "動きたい":4,"迷っている":10,"少し疲れている":9,"誰かと話したい":16,"何かを変えたい":13,"静かに整えたい":2,"うまく言葉にできない":18
+      "動きたい":4,"迷っている":10,"少し疲れている":9,"誰かと話したい":16,"何かを変えたい":14,"静かに整えたい":2,"うまく言葉にできない":18
     },
     "心と体":{
       "動きたい":4,"迷っている":11,"少し疲れている":7,"誰かと話したい":18,"何かを変えたい":15,"静かに整えたい":1,"うまく言葉にできない":1
     },
     "これからの方向":{
-      "動きたい":5,"迷っている":12,"少し疲れている":8,"誰かと話したい":18,"何かを変えたい":15,"静かに整えたい":3,"うまく言葉にできない":12
+      "動きたい":5,"迷っている":12,"少し疲れている":8,"誰かと話したい":18,"何かを変えたい":15,"静かに整えたい":3,"うまく言葉にできない":1
     },
     "特に決まっていない":{
       "動きたい":4,"迷っている":10,"少し疲れている":7,"誰かと話したい":18,"何かを変えたい":15,"静かに整えたい":1,"うまく言葉にできない":1
+    }
+  };
+
+  // 結果の大分類は18種類のまま維持。悩みと状態に固有の4ケースだけ、
+  // 汎用文が選択内容とかみ合わない部分を調整する。
+  const contextAdjustments={
+    "お金|誰かと話したい":{
+      resultId:18,
+      diagnosis:"お金の不安を一人で抱えていると、考えが堂々巡りになることがあります。今日は新しい人脈を広げるより、信頼できる相手に『今、何が不安か』を一言伝えてみたい日。話すだけで結論を出す必要はありません。",
+      action:"相談しても安心だと思える相手を一人思い浮かべ、『お金のことで○○が気になっている。少し話を聞いてもらえる？』と伝える一文を考えてみましょう。"
+    },
+    "家族|何かを変えたい":{
+      resultId:14,
+      diagnosis:"家族との暮らしで、これまでの役割や決まりごとを少し変えたいと感じていませんか。誰か一人がすべてを背負う必要はありません。今日は家の中の負担を一つ見直し、無理のない分担を考える日です。",
+      action:"家事・連絡・予定の管理などから一つ選び、『頼む・分ける・やめる』のどれかで負担を軽くできないか考えてみましょう。"
+    },
+    "これからの方向|静かに整えたい":{
+      resultId:3,
+      diagnosis:"これからの方向を、今すぐ決めなくても大丈夫です。考えてきたことが散らばっているなら、新しい答えを増やすより、今ある考えを並べ直してみましょう。今日は将来の準備の順番を、小さく整える日です。",
+      action:"これから気になっていることを紙に書き出し、その中から『今週できそうな準備』を一つだけ選んでみましょう。"
+    },
+    "これからの方向|うまく言葉にできない":{
+      resultId:1,
+      diagnosis:"これからどうしたいか、まだ言葉にならなくても大丈夫です。無理に今月の目標を決めるより、気になっていることや大切にしたい気持ちを静かに見つめてみましょう。今日は結論より、気持ちを整えることから始めたい日です。",
+      action:"『気になっていること』『少し楽しみなこと』『まだ決めなくていいこと』を、それぞれ一言ずつ書いてみましょう。"
     }
   };
 
@@ -660,10 +685,29 @@
     window.scrollTo({top:0,behavior:"smooth"});
   }
 
+  function validateBirthDate(dateStr){
+    if(!dateStr) return "生年月日を入力してください。";
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return "生年月日を正しい形式で入力してください。";
+    const [year,month,day]=dateStr.split("-").map(Number);
+    const date=new Date(Date.UTC(year,month-1,day));
+    if(date.getUTCFullYear()!==year || date.getUTCMonth()+1!==month || date.getUTCDate()!==day){
+      return "存在する日付を入力してください。";
+    }
+    if(dateStr<"1900-01-01") return "1900年1月1日以降の生年月日を入力してください。";
+    if(dateStr>localDateKey()) return "未来の日付は指定できません。今日以前の生年月日を入力してください。";
+    return null;
+  }
+
   function goStep2(){
     const birth=document.getElementById("birth").value;
-    if(!birth){document.getElementById("birthError").classList.remove("hidden");return;}
-    document.getElementById("birthError").classList.add("hidden");
+    const error=document.getElementById("birthError");
+    const message=validateBirthDate(birth);
+    if(message){
+      error.textContent=message;
+      error.classList.remove("hidden");
+      return;
+    }
+    error.classList.add("hidden");
     showOnly("step2");
   }
 
@@ -729,6 +773,7 @@
 
     const worry=worryEl.value;
     const mood=moodEl.value;
+    const context=contextAdjustments[`${worry}|${mood}`];
     const resultId=resultMap[worry][mood];
     const result=results[resultId];
     const starNo=getStar(birth);
@@ -765,12 +810,15 @@
     }else{
       why=`「${worry}」が気になり、今の状態が「${moodDisplay}」なので、今日は「${result.theme}」の中からこの結果を選びました。`;
     }
+    if(context){
+      why+=` 選んだ内容に合わせ、今日の提案を少し具体的にしています。`;
+    }
     document.getElementById("whyText").textContent=why;
     document.getElementById("healthNote").classList.toggle("hidden",worry!=="心と体");
-    document.getElementById("diagnosisText").textContent=result.diagnosis;
+    document.getElementById("diagnosisText").textContent=context?.diagnosis || result.diagnosis;
     document.getElementById("starAdviceTitle").textContent=`${star.name}のあなたへ`;
     document.getElementById("starAdviceText").textContent=star.advise(result);
-    document.getElementById("actionText").textContent=result.action;
+    document.getElementById("actionText").textContent=context?.action || result.action;
 
     document.getElementById("colorText").textContent=pick(star.colors,dailySeed,1);
     document.getElementById("itemText").textContent=pick(star.items,dailySeed,3);
