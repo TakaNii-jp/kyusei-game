@@ -315,7 +315,7 @@
         <div class="policy-copy">
           <p>このゲームは、九星気学と五行の考え方をヒントに独自設計したエンターテインメントです。診断結果や提案は、将来・運勢・効果を保証したり、伝統的な九星気学の吉凶を断定したりするものではありません。</p>
           <p>健康・医療、お金・投資、法律、進路・仕事、人間関係など重要な判断では、このゲームだけを根拠にせず、現実の状況、公的な情報、必要に応じて専門家の助言を優先してください。最終的な判断はご自身で行ってください。</p>
-          <p>入力した生年月日と選択内容は、このページ内の診断処理に使用します。本ゲームには、それらの入力内容を外部へ送信したり保存したりする機能は実装していません。</p>
+          <p>入力した生年月日と選択内容は、このページ内の診断処理にのみ使用し、Google Analyticsには送信しません。また、それらの入力内容を本ゲーム側で保存する機能はありません。サイト改善のためGoogle Analyticsを利用し、ページ閲覧・ゲーム開始・結果表示・無料noteリンクのクリックなどの利用状況を計測します。</p>
         </div>
       </details>
     </header>
@@ -713,6 +713,15 @@
     card.classList.remove("hidden");
   }
 
+  // --- Google Analytics: funnel measurement ---
+  // Only generic interaction events are sent. Birth date and diagnosis selections are not sent.
+  let gameStartedTracked=false;
+  function trackEvent(eventName){
+    if(typeof window.gtag==="function"){
+      window.gtag("event",eventName);
+    }
+  }
+
   function showOnly(id){
     ["step1","step2","step3","result"].forEach(x=>document.getElementById(x).classList.add("hidden"));
     document.getElementById(id).classList.remove("hidden");
@@ -742,6 +751,10 @@
       return;
     }
     error.classList.add("hidden");
+    if(!gameStartedTracked){
+      trackEvent("game_start");
+      gameStartedTracked=true;
+    }
     showOnly("step2");
   }
 
@@ -863,6 +876,7 @@
     document.getElementById("copyNote").textContent="";
     updateNoteCard(resultId,worry);
     showOnly("result");
+    trackEvent("result_view");
   }
 
   function restart(){
@@ -905,6 +919,7 @@
     const diagnoseButton=document.getElementById("diagnoseButton");
     const restartButton=document.getElementById("restartButton");
     const copyButton=document.getElementById("copyButton");
+    const noteCardLink=document.getElementById("noteCardLink");
 
     if(step1Next) step1Next.addEventListener("click",goStep2);
     if(step2Back) step2Back.addEventListener("click",()=>showOnly("step1"));
@@ -913,6 +928,7 @@
     if(diagnoseButton) diagnoseButton.addEventListener("click",diagnose);
     if(restartButton) restartButton.addEventListener("click",restart);
     if(copyButton) copyButton.addEventListener("click",copyResult);
+    if(noteCardLink) noteCardLink.addEventListener("click",()=>trackEvent("note_click"));
   }
 
   if(document.readyState==="loading"){
